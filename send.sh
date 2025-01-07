@@ -20,7 +20,7 @@ case $1 in
     ;;
 esac
 
-if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
+if [ -z "$CI_COMMIT_TAG_MESSAGE" ]; then
   COMMIT_TAG_MESSAGE=""
 else
   COMMIT_TAG_MESSAGE=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa . | tr -d '"')
