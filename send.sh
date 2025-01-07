@@ -21,11 +21,11 @@ case $1 in
 esac
 
 
-CUSTOM_MESSAGE=""
+COMMIT_TAG=""
 
-if [ -n "$3" ]; then
+if [ -n $CI_COMMIT_TAG_MESSAGE ]; then
   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
-  CUSTOM_MESSAGE=$(echo "$3" | jq -Rsa .)
+  COMMIT_TAG=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .)
 fi
 
 shift
@@ -67,7 +67,7 @@ else
   '
 fi
 
-DESCRIPTION=$(echo "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
+DESCRIPTION="${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$COMMIT_TAG"
 
 if [ -z $LINK_ARTIFACT ] || [ $LINK_ARTIFACT = false ] ; then
 WEBHOOK_DATA=$(cat <<EOF
