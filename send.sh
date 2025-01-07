@@ -138,6 +138,8 @@ EOF
 )
 fi
 
+echo "$WEBHOOK_DATA"
+
 echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
 (curl --fail --progress-bar -A "GitLabCI-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "$WEBHOOK_DATA" "$1" \
