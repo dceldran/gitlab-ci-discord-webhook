@@ -21,9 +21,9 @@ case $1 in
 esac
 
 
-COMMIT_TAG=""
-
-if [ -n $CI_COMMIT_TAG_MESSAGE ]; then
+if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
+  COMMIT_TAG=""
+else
   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
   COMMIT_TAG=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .)
 fi
