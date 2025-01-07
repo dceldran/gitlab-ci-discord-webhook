@@ -20,14 +20,12 @@ case $1 in
     ;;
 esac
 
-echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .
-COMMIT_TAG=""
-# if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
-#   COMMIT_TAG=""
-# else
-#   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
-#   COMMIT_TAG=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .)
-# fi
+
+if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
+  COMMIT_TAG_MESSAGE=""
+else
+  COMMIT_TAG_MESSAGE=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa . | tr -d '"')
+fi
 
 shift
 
@@ -68,7 +66,7 @@ else
   '
 fi
 
-DESCRIPTION="${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$COMMIT_TAG"
+DESCRIPTION="${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$COMMIT_TAG_MESSAGE"
 
 if [ -z $LINK_ARTIFACT ] || [ $LINK_ARTIFACT = false ] ; then
 WEBHOOK_DATA=$(cat <<EOF
@@ -141,8 +139,6 @@ WEBHOOK_DATA=$(cat <<EOF
 EOF
 )
 fi
-
-echo "$WEBHOOK_DATA"
 
 echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
