@@ -25,7 +25,7 @@ CUSTOM_MESSAGE=""
 
 if [ -n "$3" ]; then
   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
-  CUSTOM_MESSAGE=$(echo "$3" | jq -Rsa .)
+  CUSTOM_MESSAGE=$(echo $3 | jq -Rsa .)
 fi
 
 shift
