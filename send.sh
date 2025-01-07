@@ -20,6 +20,13 @@ case $1 in
     ;;
 esac
 
+
+CUSTOM_MESSAGE=""
+
+if [ -n "$3" ]; then
+  CUSTOM_MESSAGE="$3"
+fi
+
 shift
 
 if [ $# -lt 1 ]; then
@@ -46,72 +53,92 @@ fi
 
 TIMESTAMP=$(date --utc +%FT%TZ)
 
+if [ -z $CI_COMMIT_TAG ]; then
+  COMMIT_TAG_FIELD=""
+else
+  COMMIT_TAG_FIELD='
+  ,
+        {
+          "name": "Tag",
+          "value": "'"[\`$CI_COMMIT_TAG\`]($CI_PROJECT_URL/-/tags/$CI_COMMIT_TAG)"'",
+          "inline": true
+        }
+  '
+fi
+
 if [ -z $LINK_ARTIFACT ] || [ $LINK_ARTIFACT = false ] ; then
-  WEBHOOK_DATA='{
+WEBHOOK_DATA=$(cat <<EOF
+{
     "avatar_url": "https://gitlab.com/favicon.png",
     "embeds": [ {
-      "color": '$EMBED_COLOR',
+      "color": $EMBED_COLOR,
       "author": {
-        "name": "Pipeline #'"$CI_PIPELINE_IID"' '"$STATUS_MESSAGE"' - '"$CI_PROJECT_PATH_SLUG"'",
-        "url": "'"$CI_PIPELINE_URL"'",
+        "name": "Pipeline #$CI_PIPELINE_IID $STATUS_MESSAGE - $CI_PROJECT_PATH_SLUG",
+        "url": "$CI_PIPELINE_URL",
         "icon_url": "https://gitlab.com/favicon.png"
       },
-      "title": "'"$COMMIT_SUBJECT"'",
-      "url": "'"$URL"'",
-      "description": "'"${COMMIT_MESSAGE//$'\n'/ }"\\n\\n"$CREDITS"'",
+      "title": "$COMMIT_SUBJECT",
+      "url": "$URL",
+      "description": "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE",
       "fields": [
         {
           "name": "Commit",
-          "value": "'"[\`$CI_COMMIT_SHORT_SHA\`]($CI_PROJECT_URL/commit/$CI_COMMIT_SHA)"'",
+          "value": "[\`$CI_COMMIT_SHORT_SHA\`]($CI_PROJECT_URL/commit/$CI_COMMIT_SHA)",
           "inline": true
         },
         {
           "name": "Branch",
-          "value": "'"[\`$CI_COMMIT_REF_NAME\`]($CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME)"'",
+          "value": "[\`$CI_COMMIT_REF_NAME\`]($CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME)",
           "inline": true
         }
+        $COMMIT_TAG_FIELD
         ],
-        "timestamp": "'"$TIMESTAMP"'"
+        "timestamp": "$TIMESTAMP"
       } ]
-    }'
+    }
+EOF
+)
+
 else
-	WEBHOOK_DATA='{
-		"avatar_url": "https://gitlab.com/favicon.png",
-		"embeds": [ {
-			"color": '$EMBED_COLOR',
-			"author": {
-			"name": "Pipeline #'"$CI_PIPELINE_IID"' '"$STATUS_MESSAGE"' - '"$CI_PROJECT_PATH_SLUG"'",
-			"url": "'"$CI_PIPELINE_URL"'",
-			"icon_url": "https://gitlab.com/favicon.png"
-			},
-			"title": "'"$COMMIT_SUBJECT"'",
-			"url": "'"$URL"'",
-			"description": "'"${COMMIT_MESSAGE//$'\n'/ }"\\n\\n"$CREDITS"'",
-			"fields": [
-			{
-				"name": "Commit",
-				"value": "'"[\`$CI_COMMIT_SHORT_SHA\`]($CI_PROJECT_URL/commit/$CI_COMMIT_SHA)"'",
-				"inline": true
-			},
-			{
-				"name": "Branch",
-				"value": "'"[\`$CI_COMMIT_REF_NAME\`]($CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME)"'",
-				"inline": true
-			},
-			{
-				"name": "Artifacts",
-				"value": "'"[\`$CI_JOB_ID\`]($ARTIFACT_URL)"'",
-				"inline": true
-			}
-			],
-			"timestamp": "'"$TIMESTAMP"'"
-		} ]
-	}'
+WEBHOOK_DATA=$(cat <<EOF
+{
+    "avatar_url": "https://gitlab.com/favicon.png",
+    "embeds": [ {
+      "color": $EMBED_COLOR,
+      "author": {
+        "name": "Pipeline #$CI_PIPELINE_IID $STATUS_MESSAGE - $CI_PROJECT_PATH_SLUG",
+        "url": "$CI_PIPELINE_URL",
+        "icon_url": "https://gitlab.com/favicon.png"
+      },
+      "title": "$COMMIT_SUBJECT",
+      "url": "$URL",
+      "description": "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE",
+      "fields": [
+        {
+          "name": "Commit",
+          "value": "[\`$CI_COMMIT_SHORT_SHA\`]($CI_PROJECT_URL/commit/$CI_COMMIT_SHA)",
+          "inline": true
+        },
+        {
+          "name": "Branch",
+          "value": "[\`$CI_COMMIT_REF_NAME\`]($CI_PROJECT_URL/tree/$CI_COMMIT_REF_NAME)",
+          "inline": true
+        },
+        {
+          "name": "Artifacts",
+          "value": "[\`$CI_JOB_ID\`]($ARTIFACT_URL)",
+          "inline": true
+			  }
+        $COMMIT_TAG_FIELD
+        ],
+        "timestamp": "$TIMESTAMP"
+      } ]
+    }
+EOF
+)
 fi
 
-for ARG in "$@"; do
-  echo -e "[Webhook]: Sending webhook to Discord...\\n";
+echo -e "[Webhook]: Sending webhook to Discord...\\n";
 
-  (curl --fail --progress-bar -A "GitLabCI-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "$WEBHOOK_DATA" "$ARG" \
-  && echo -e "\\n[Webhook]: Successfully sent the webhook.") || echo -e "\\n[Webhook]: Unable to send webhook."
-done
+(curl --fail --progress-bar -A "GitLabCI-Webhook" -H Content-Type:application/json -H X-Author:k3rn31p4nic#8383 -d "$WEBHOOK_DATA" "$1" \
+&& echo -e "\\n[Webhook]: Successfully sent the webhook.") || echo -e "\\n[Webhook]: Unable to send webhook."
