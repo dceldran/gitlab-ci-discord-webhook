@@ -20,14 +20,14 @@ case $1 in
     ;;
 esac
 
-echo "$CI_COMMIT_TAG_MESSAGE"
-
-if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
-  COMMIT_TAG=""
-else
-  # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
-  COMMIT_TAG=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .)
-fi
+echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .
+COMMIT_TAG=""
+# if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
+#   COMMIT_TAG=""
+# else
+#   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
+#   COMMIT_TAG=$(echo "$CI_COMMIT_TAG_MESSAGE" | jq -Rsa .)
+# fi
 
 shift
 
