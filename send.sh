@@ -25,7 +25,7 @@ CUSTOM_MESSAGE=""
 
 if [ -n "$3" ]; then
   # CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
-  CUSTOM_MESSAGE=$(echo $3 | jq -Rsa .)
+  CUSTOM_MESSAGE=$(echo "$3" | jq -Rsa .)
 fi
 
 shift
@@ -67,6 +67,8 @@ else
   '
 fi
 
+DESCRIPTION=$(echo "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
+
 if [ -z $LINK_ARTIFACT ] || [ $LINK_ARTIFACT = false ] ; then
 WEBHOOK_DATA=$(cat <<EOF
 {
@@ -80,7 +82,7 @@ WEBHOOK_DATA=$(cat <<EOF
       },
       "title": "$COMMIT_SUBJECT",
       "url": "$URL",
-      "description": "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE",
+      "description": "$DESCRIPTION",
       "fields": [
         {
           "name": "Commit",
@@ -113,7 +115,7 @@ WEBHOOK_DATA=$(cat <<EOF
       },
       "title": "$COMMIT_SUBJECT",
       "url": "$URL",
-      "description": "${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$CUSTOM_MESSAGE",
+      "description": "$DESCRIPTION",
       "fields": [
         {
           "name": "Commit",
