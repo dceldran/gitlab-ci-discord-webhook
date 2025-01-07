@@ -22,11 +22,12 @@ esac
 
 
 CUSTOM_MESSAGE=""
-
+echo "$3"
+echo $3
 if [ -n "$3" ]; then
   CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
 fi
-echo $CUSTOM_MESSAGE
+
 shift
 
 if [ $# -lt 1 ]; then
