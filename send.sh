@@ -20,6 +20,7 @@ case $1 in
     ;;
 esac
 
+echo "$CI_COMMIT_TAG_MESSAGE"
 
 if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
   COMMIT_TAG=""
@@ -66,8 +67,6 @@ else
         }
   '
 fi
-
-echo $COMMIT_TAG
 
 DESCRIPTION="${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$COMMIT_TAG"
 
