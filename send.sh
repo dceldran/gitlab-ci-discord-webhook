@@ -24,7 +24,7 @@ esac
 CUSTOM_MESSAGE=""
 
 if [ -n "$3" ]; then
-  CUSTOM_MESSAGE="$3"
+  CUSTOM_MESSAGE=$(echo "$3" | sed ':a;N;$!ba;s/\n/\\n/g')
 fi
 
 shift
@@ -137,8 +137,6 @@ WEBHOOK_DATA=$(cat <<EOF
 EOF
 )
 fi
-
-echo "${CI_COMMIT_TAG_MESSAGE}"
 
 echo "$WEBHOOK_DATA"
 
