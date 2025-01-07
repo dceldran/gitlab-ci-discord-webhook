@@ -20,7 +20,6 @@ case $1 in
     ;;
 esac
 
-
 if [ -z $CI_COMMIT_TAG_MESSAGE ]; then
   COMMIT_TAG_MESSAGE=""
 else
