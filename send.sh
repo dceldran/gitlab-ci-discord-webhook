@@ -67,6 +67,8 @@ else
   '
 fi
 
+echo $COMMIT_TAG
+
 DESCRIPTION="${COMMIT_MESSAGE//$\n/ }\\n\\n$CREDITS\\n\\n$COMMIT_TAG"
 
 if [ -z $LINK_ARTIFACT ] || [ $LINK_ARTIFACT = false ] ; then
