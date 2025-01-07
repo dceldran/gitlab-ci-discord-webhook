@@ -22,8 +22,7 @@ esac
 
 
 CUSTOM_MESSAGE=""
-echo "$2"
-echo $2
+
 if [ -n "$3" ]; then
   CUSTOM_MESSAGE=$(echo "$3" | sed -e ':a;N;$!ba' -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\n/\\n/g')
 fi
