@@ -138,6 +138,8 @@ EOF
 )
 fi
 
+echo "${CI_COMMIT_TAG_MESSAGE}"
+
 echo "$WEBHOOK_DATA"
 
 echo -e "[Webhook]: Sending webhook to Discord...\\n";
